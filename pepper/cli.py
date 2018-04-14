@@ -262,10 +262,10 @@ class PepperCli(object):
                 """))
 
         optgroup.add_option('--fail-any', dest='fail_any', action='store_true',
-                help="Fail if any of retcode field are non zero.")
+                help="Fail if any of retcode field is non zero.")
 
         optgroup.add_option('--fail-any-none', dest='fail_any_none', action='store_true',
-                help="Fail if any of retcode field are non zero or there is no retcode at all.")
+                help="Fail if any of retcode field is non zero or there is no retcode at all.")
 
         optgroup.add_option('--fail-all', dest='fail_all', action='store_true',
                 help="Fail if all retcode fields are non zero.")
