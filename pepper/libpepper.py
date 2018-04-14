@@ -4,21 +4,23 @@ A Python library for working with Salt's REST API
 (Specifically the rest_cherrypy netapi module.)
 
 '''
+from __future__ import print_function
 import json
 import logging
 import ssl
+import sys
 try:
     ssl._create_default_https_context = ssl._create_stdlib_context
 except:
     pass
 
 try:
-    from urllib.request import HTTPHandler, Request, urlopen, \
+    from urllib.request import HTTPHandler, HTTPSHandler, Request, urlopen, \
         install_opener, build_opener
     from urllib.error import HTTPError, URLError
     import urllib.parse as urlparse
 except ImportError:
-    from urllib2 import HTTPHandler, Request, urlopen, install_opener, build_opener, \
+    from urllib2 import HTTPHandler, HTTPSHandler, Request, urlopen, install_opener, build_opener, \
         HTTPError, URLError
     import urlparse
 
@@ -201,8 +203,12 @@ class Pepper(object):
             'X-Requested-With': 'XMLHttpRequest',
         }
 
-        handler = HTTPHandler(debuglevel=self.debug_http)
-        opener = build_opener(handler)
+        opener = build_opener()
+        for handler in opener.handlers:
+            if isinstance(handler, HTTPHandler):
+                handler.set_http_debuglevel(self.debug_http)
+            if isinstance(handler, HTTPSHandler):
+                handler.set_http_debuglevel(self.debug_http)
         install_opener(opener)
 
         # Build POST data
@@ -233,7 +239,10 @@ class Pepper(object):
                 f = urlopen(req, context=con)
             else:
                 f = urlopen(req)
-            ret = json.loads(f.read().decode('utf-8'))
+            content = f.read().decode('utf-8')
+            if (self.debug_http):
+                print("\nResponse: {}\n".format(content), file=sys.stderr)
+            ret = json.loads(content)
         except (HTTPError, URLError) as exc:
             logger.debug('Error with request', exc_info=True)
             status = getattr(exc, 'code', None)

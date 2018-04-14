@@ -33,7 +33,8 @@ logger.addHandler(NullHandler())
 class Pepper(object):
     def __init__(self):
         self.cli = PepperCli()
-        self.opts = salt.config.client_config(self.cli.options.master)
+        if HAS_SALT:
+            self.opts = salt.config.client_config(self.cli.options.master)
 
     @property
     def output(self):
